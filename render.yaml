@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: hospital-management-backend
+    # This line forces Render to use the Java environment
+    runtime: java
+    plan: free
+    branch: main
+    healthCheckPath: /api/auth/health # A simple path to check if the server is running
+    envVars:
+      - key: JAVA_VERSION
+        value: 17
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://shortline.proxy.rlwy.net:16625/railway
+      - key: SPRING_DATASOURCE_USERNAME
+        value: root
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: TyyNtVGqFoTQfBenyvSAHTlSMEQPmvgm
+      - key: JWT_SECRET
+        value: ThisIsASecretKeyForJWTGenerationThatIsVeryLongAndSecure12345
+    buildCommand: "./mvnw clean package"
+    startCommand: "java -jar target/springproject-0.0.1-SNAPSHOT.jar"
