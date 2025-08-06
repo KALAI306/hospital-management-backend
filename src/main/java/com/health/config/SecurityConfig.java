@@ -1,6 +1,5 @@
 package com.health.config;
 
-// No need to import Autowired for the filter anymore
 import com.health.security.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,10 +26,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // === CHANGE 1: REMOVE THE @Autowired JwtRequestFilter FIELD FROM HERE ===
-    // @Autowired
-    // private JwtRequestFilter jwtRequestFilter; // DELETE THIS LINE
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,10 +36,15 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
+    // === THIS IS THE CORRECTED METHOD ===
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        // Add your new Vercel URL to the list of allowed origins
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:3000", 
+            "https://hospital-appointment-management.vercel.app"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
@@ -54,13 +54,11 @@ public class SecurityConfig {
         return source;
     }
 
-    // === CHANGE 2: PASS THE JwtRequestFilter AS A PARAMETER TO THIS METHOD ===
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
         http
             .cors(withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
-            
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/patient/**").hasAuthority("PATIENT")
@@ -68,10 +66,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/receptionist/**").hasAuthority("RECEPTIONIST")
                 .anyRequest().authenticated()
             )
-            
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // Now we use the filter that was passed into the method
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
