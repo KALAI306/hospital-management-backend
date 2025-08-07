@@ -43,7 +43,7 @@ public class SecurityConfig {
         // Add your new Vercel URL to the list of allowed origins
         configuration.setAllowedOrigins(List.of(
             "http://localhost:3000", 
-            "https://hospital-appointment-management.vercel.app"
+            "https://hospital-appointment-management.vercel.app" // <-- ADD THIS LINE
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
